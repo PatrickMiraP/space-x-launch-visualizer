@@ -36,10 +36,8 @@ deployments:
         inputType: OutputTopic
         required: false
         value: launch-telemetry-xy
-  - name: Rocket visualizer
+  - name: Rocket visualization
     application: rocket-visualization
-    version: latest
-    deploymentType: Service
     network:
       serviceName: Visualization
       ports:
@@ -47,18 +45,6 @@ deployments:
         targetPort: 5000
     publicAccess:
       enabled: true      
-    resources:
-      cpu: 200
-      memory: 800
-      replicas: 1
-    variables:
-      - name: input
-        inputType: InputTopic
-        description: Name of the input topic to listen to.
-        required: false
-        value: launch-telemetry-xy
-  - name: starter-visualization
-    application: starter-visualization
     version: latest
     deploymentType: Service
     resources:
@@ -69,10 +55,9 @@ deployments:
       - name: input
         inputType: InputTopic
         required: false
-        value: f1-data
+        value: launch-telemetry-xy
 
 # This section describes the Topics of the data pipeline
 topics:
   - name: launch-telemetry
   - name: launch-telemetry-xy
-  - name: f1-data

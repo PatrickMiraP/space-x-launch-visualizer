@@ -6,8 +6,8 @@ metadata:
 
 # This section describes the Deployments of the data pipeline
 deployments:
-  - name: demo-data-source
-    application: demo-data-source
+  - name: Launch Telemetry Producer
+    application: launch-telemetry-producer
     version: latest
     deploymentType: Service
     resources:
@@ -18,9 +18,26 @@ deployments:
       - name: output
         inputType: OutputTopic
         required: false
-        value: f1-data
-  - name: starter-visualization
-    application: starter-visualization
+        value: launch-telemetry
+  - name: Position XY calculation
+    application: position-xy-calculation
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        required: false
+        value: launch-telemetry
+      - name: output
+        inputType: OutputTopic
+        required: false
+        value: launch-telemetry-xy
+  - name: Rocket visualizer
+    application: rocket-visualization
     version: latest
     deploymentType: Service
     network:
@@ -29,7 +46,21 @@ deployments:
       - port: 80
         targetPort: 5000
     publicAccess:
-      enabled: true
+      enabled: true      
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        description: Name of the input topic to listen to.
+        required: false
+        value: launch-telemetry-xy
+  - name: starter-visualization
+    application: starter-visualization
+    version: latest
+    deploymentType: Service
     resources:
       cpu: 200
       memory: 800
@@ -42,4 +73,6 @@ deployments:
 
 # This section describes the Topics of the data pipeline
 topics:
+  - name: launch-telemetry
+  - name: launch-telemetry-xy
   - name: f1-data

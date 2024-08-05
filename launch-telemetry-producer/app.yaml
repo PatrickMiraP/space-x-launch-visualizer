@@ -1,9 +1,9 @@
-name: demo-data-source
+name: Launch Telemetry Producer
 language: Python
 variables:
   - name: output
     inputType: OutputTopic
-    defaultValue: f1-data
+    defaultValue: launch-telemetry
     required: false
 dockerfile: dockerfile
 runEntryPoint: main.py

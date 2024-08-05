@@ -1,7 +1,7 @@
 **.env
 **-venv
-/certificates/*
-/state/*
+certificates/*
+state/*
 
 .env
 compose.local.yaml

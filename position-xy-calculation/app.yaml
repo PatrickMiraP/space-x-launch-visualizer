@@ -1,0 +1,14 @@
+name: Position XY calculation
+language: python
+variables:
+  - name: input
+    inputType: InputTopic
+    defaultValue: launch-telemetry
+    required: false
+  - name: output
+    inputType: OutputTopic
+    defaultValue: launch-telemetry-xy
+    required: false
+dockerfile: dockerfile
+runEntryPoint: main.py
+defaultFile: main.py

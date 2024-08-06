@@ -98,13 +98,11 @@ if __name__ == '__main__':
                 state_value["first_time"] = row["time"]        
 
             
-            state_value["last_time"] = row["time"]
-            state_value["last_epoch"] = time.time()
             if "last_time" not in last_value:
                 continue
             
-            step_delay = row["time"] - last_value["last_time"]
-            wall_clock_delay = time.time() - last_value["last_epoch"]
+            step_delay = row["time"] - state_value["first_time"]
+            wall_clock_delay = time.time() - last_value["first_epoch"]
         
             sleep_delay = step_delay - wall_clock_delay
             if sleep_delay > 0:

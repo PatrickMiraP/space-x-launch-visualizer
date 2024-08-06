@@ -105,8 +105,9 @@ if __name__ == '__main__':
             wall_clock_delay = time.time() - last_value["first_epoch"]
         
             sleep_delay = step_delay - wall_clock_delay
+            print("Delaying " + str(sleep_delay))
+
             if sleep_delay > 0:
-                print("Delaying " + str(sleep_delay))
                 
                 time.sleep(sleep_delay)
                 print(row["time"])

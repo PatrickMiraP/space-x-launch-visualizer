@@ -98,6 +98,10 @@
                 <td>Altitude:</td>
                 <td id="altitudeValue"></td>
             </tr>
+            <tr>
+                <td>Time:</td>
+                <td id="timeValue"></td>
+            </tr>
         </table>
     </div>
 
@@ -212,6 +216,9 @@
                 document.getElementById('velocityYValue').textContent = `${(telemetry.velocity_y * 3.6).toFixed(2)} km/h`;
                 document.getElementById('accelerationValue').textContent = `${telemetry.acceleration.toFixed(2)} m/s²`;
                 document.getElementById('altitudeValue').textContent = `${telemetry.altitude.toFixed(2)} km`;
+                document.getElementById('timeValue').textContent = `${telemetry.time} s`;
+
+
 
                 offset_youtube_seconds = Math.floor(telemetry.offset_youtube_seconds)
 

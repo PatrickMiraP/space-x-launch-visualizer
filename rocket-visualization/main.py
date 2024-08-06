@@ -3,14 +3,17 @@ import threading
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-
-from quixstreams import Application
+import time
+from quixstreams import Application, State
 
 # import the dotenv module to load environment variables from a file
 from dotenv import load_dotenv
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode="threading")
+
+queues = {}
+threads = {}
 
 # Enabling auto-reloading of templates
 @app.before_request
@@ -71,9 +74,65 @@ if __name__ == '__main__':
 
     input_topic = quix_app.topic(os.environ["input"])
 
+
+    def consume_queue(key:str):
+        global queues
+        
+    
+        
+        q = queues[key]
+        
+        state_value = {}
+        
+        while True:
+            row = q.get()
+            if row is None:
+                break
+            
+            last_value = {**state_value}
+            
+            state_value["last_time"] = row["time"]
+            state_value["last_epoch"] = time.time()
+            
+            if "last_time" not in last_value:
+                continue
+            
+            step_delay = row["time"] - last_value["last_time"]
+            wall_clock_delay = time.time() - last_value["last_epoch"]
+        
+            sleep_delay = step_delay - wall_clock_delay
+            if sleep_delay > 0:
+                print("Delaying " + str(sleep_delay))
+                
+                time.sleep(sleep_delay)
+                print(row["time"])
+
+                send_telemetry(row, key, None, None)
+
+
+
+    
+
+    def sink_to_queue(row: dict, key, *_):
+        global queues
+        global threads
+        
+        if key not in queues:
+            q = queue.Queue(100)
+            queues[key] = q
+            t = threading.Thread(target=consume_queue, args=[key])
+            t.start()
+            threads[key] = t
+            
+            
+        else:
+            q = queues[key]
+
+        q.put(row)
+
     sdf = quix_app.dataframe(input_topic)
-
-    #sdf = sdf.update(lambda row: print(row))
-
-    sdf = sdf.update(send_telemetry, metadata=True)
+    
+    sdf.update(sink_to_queue, metadata=True)
+    
+    #sdf = sdf.update(send_telemetry, metadata=True)
     quix_app.run(sdf)

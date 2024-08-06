@@ -61,7 +61,7 @@ def send_telemetry(data: dict, key, timestamp, headers):
         'time': data["time"]
     }
     
-    print(telemetry)
+    #print(telemetry)
 
     socketio.emit('telemetry', telemetry)
 

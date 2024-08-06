@@ -17,7 +17,8 @@ app = Application(consumer_group="data_source", auto_create_topics=True)  # crea
 # Load environment variables
 topic_name = os.environ["output"]
 num_missions = int(os.environ.get("num_missions", 10))  # Default to 10 if not set
-replica_id = int(os.environ.get("Quix__Deployment__ReplicaName", 0))  # Default to 0 if not set
+replica_name = os.environ.get("Quix__Deployment__ReplicaName", "0")
+replica_id = int(replica_name.split('-')[-1])  # Extract the number after the last hyphen
 
 # Define the topic using the "output" environment variable
 topic = app.topic(topic_name)

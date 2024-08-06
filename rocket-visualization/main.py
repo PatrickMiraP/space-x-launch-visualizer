@@ -50,7 +50,10 @@ def send_telemetry(data: dict, key, timestamp, headers):
         'velocity_x': data["velocity_x"],
         'velocity_y': data["velocity_y"],
         'acceleration': data["acceleration"],
-        'altitude': data["altitude"]
+        'altitude': data["altitude"],
+        'youtube_id': data["youtube_id"],
+        'offset_youtube_seconds': data["time"] + data["offset_youtube_seconds"],
+        'time': data["time"]
     }
     
     print(telemetry)

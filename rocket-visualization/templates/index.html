@@ -41,6 +41,15 @@
         #legend table tr td {
             padding-right: 15px;
         }
+
+        #youtubeVideo {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 480px;
+            height: 270px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +101,8 @@
         </table>
     </div>
 
+    <iframe id="youtubeVideo" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
     <script>
         const canvas = document.getElementById('rocketCanvas');
@@ -114,6 +125,10 @@
         const rockets = {}; // Store telemetry data for each rocket
         let selectedRocket = null; // Track the selected rocket
 
+        // Store the video player and current YouTube ID
+        let currentYouTubeID = null;
+        let videoPlayer = document.getElementById('youtubeVideo');
+
         // Function to draw the SpaceX Falcon 9 rocket and its trajectory
         function drawRockets() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -127,7 +142,7 @@
 
                 // Apply an offset to separate rockets based on their index
                 const xOffset = (index - (keys.length - 1) / 2) * 50;
-                
+
                 // Convert Km to pixels using the current scaling factor
                 const x = centerX + (telemetry.x * kmToPixels) + xOffset;
                 const y = canvas.height - (telemetry.y * kmToPixels);  // Invert the y-axis to match canvas coordinates
@@ -197,6 +212,16 @@
                 document.getElementById('velocityYValue').textContent = `${(telemetry.velocity_y * 3.6).toFixed(2)} km/h`;
                 document.getElementById('accelerationValue').textContent = `${telemetry.acceleration.toFixed(2)} m/s²`;
                 document.getElementById('altitudeValue').textContent = `${telemetry.altitude.toFixed(2)} km`;
+
+                // Update the YouTube video if the selected rocket changes or the video ID changes
+                if (telemetry.youtube_id && telemetry.youtube_id !== currentYouTubeID) {
+                    currentYouTubeID = telemetry.youtube_id;
+                    const videoStartTime = Math.max(0, telemetry.offset_youtube_seconds);
+                    videoPlayer.src = `https://www.youtube.com/embed/${currentYouTubeID}?start=${videoStartTime}&autoplay=1`;
+                } else if (telemetry.youtube_id) {
+                    const videoStartTime = Math.max(0, telemetry.offset_youtube_seconds);
+                    videoPlayer.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[' + videoStartTime + ', true]}', '*');
+                }
             }
         }
 

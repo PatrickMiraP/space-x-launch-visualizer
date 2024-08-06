@@ -43,8 +43,6 @@ deployments:
       ports:
       - port: 80
         targetPort: 5000
-    publicAccess:
-      enabled: true      
     version: latest
     deploymentType: Service
     resources:

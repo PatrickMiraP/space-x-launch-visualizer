@@ -103,77 +103,105 @@
         const currentLocation = window.location;
         const socket = io.connect(`${currentLocation.protocol}//${currentLocation.host}`);
 
-        const rocketHistory = new Set(); // Use a Set to store unique rocket positions
+        const rockets = {}; // Store telemetry data for each rocket
 
         // Function to draw the SpaceX Falcon 9 rocket and its trajectory
-        function drawFalcon9(telemetry) {
-            // Convert Km to pixels using the current scaling factor
-            const x = centerX + (telemetry.x * kmToPixels);
-            const y = canvas.height - (telemetry.y * kmToPixels);  // Invert the y-axis to match canvas coordinates
-
-            // Store current position in history if it's unique
-            rocketHistory.add(`${telemetry.x.toFixed(2)},${telemetry.y.toFixed(2)}`);
-
+        function drawRockets() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw rocket trajectory
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
+            for (const key in rockets) {
+                const telemetry = rockets[key];
+                const rocketHistory = telemetry.history;
 
-            for (const point of rocketHistory) {
-                const [px, py] = point.split(',').map(parseFloat);
-                ctx.lineTo(centerX + (px * kmToPixels), canvas.height - (py * kmToPixels));
+                // Convert Km to pixels using the current scaling factor
+                const x = centerX + (telemetry.x * kmToPixels);
+                const y = canvas.height - (telemetry.y * kmToPixels);  // Invert the y-axis to match canvas coordinates
+
+                // Store current position in history if it's unique
+                rocketHistory.add(`${telemetry.x.toFixed(2)},${telemetry.y.toFixed(2)}`);
+
+                // Draw rocket trajectory
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                for (const point of rocketHistory) {
+                    const [px, py] = point.split(',').map(parseFloat);
+                    ctx.lineTo(centerX + (px * kmToPixels), canvas.height - (py * kmToPixels));
+                }
+
+                ctx.stroke();
+
+                // Translate and rotate the canvas based on rocket position and angle
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate((telemetry.angle - 90) * Math.PI / 180); // Adjust for canvas orientation and convert to radians
+
+                // Draw Falcon 9 rocket with improved shape and flame effect
+                ctx.fillStyle = '#6495ED'; // Light blue color
+                ctx.fillRect(-5, -5, 10, 20);
+
+                // Draw rocket flame
+                ctx.fillStyle = '#ffcc00'; // Yellow color
+                ctx.beginPath();
+                ctx.moveTo(-3, 15);
+                ctx.lineTo(3, 15);
+                ctx.lineTo(0, 25);
+                ctx.closePath();
+                ctx.fill();
+
+                // Restore the canvas transformation
+                ctx.restore();
+
+                // Draw label with mission name and stage next to the rocket
+                ctx.fillStyle = '#fff'; // White color
+                ctx.font = '12px Inter'; // Adjust font size and family
+                ctx.fillText(`${telemetry.name} - stage ${telemetry.stage}`, x + 20, y + 20);
             }
 
-            ctx.stroke();
+            // Update legend values (displaying only the latest telemetry data for simplicity)
+            const latestTelemetry = rockets[Object.keys(rockets).pop()];
+            if (latestTelemetry) {
+                document.getElementById('xValue').textContent = `${latestTelemetry.x.toFixed(2)} km`;
+                document.getElementById('yValue').textContent = `${latestTelemetry.y.toFixed(2)} km`;
+                document.getElementById('angleValue').textContent = `${latestTelemetry.angle.toFixed(2)}°`;
+                document.getElementById('velocityValue').textContent = `${(latestTelemetry.velocity * 3.6).toFixed(2)} km/h`;
+                document.getElementById('velocityXValue').textContent = `${(latestTelemetry.velocity_x * 3.6).toFixed(2)} km/h`;
+                document.getElementById('velocityYValue').textContent = `${(latestTelemetry.velocity_y * 3.6).toFixed(2)} km/h`;
+                document.getElementById('accelerationValue').textContent = `${latestTelemetry.acceleration.toFixed(2)} m/s²`;
+                document.getElementById('altitudeValue').textContent = `${latestTelemetry.altitude.toFixed(2)} km`;
+            }
 
-            // Translate and rotate the canvas based on rocket position and angle
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate((telemetry.angle - 90) * Math.PI / 180); // Adjust for canvas orientation and convert to radians
+            // Check if any rocket is beyond the screen boundaries
+            for (const key in rockets) {
+                const telemetry = rockets[key];
+                const x = centerX + (telemetry.x * kmToPixels);
+                const y = canvas.height - (telemetry.y * kmToPixels);
 
-            // Draw Falcon 9 rocket with improved shape and flame effect
-            ctx.fillStyle = '#6495ED'; // Light blue color
-            ctx.fillRect(-5, -5, 10, 20);
-
-            // Draw rocket flame
-            ctx.fillStyle = '#ffcc00'; // Yellow color
-            ctx.beginPath();
-            ctx.moveTo(-3, 15);
-            ctx.lineTo(3, 15);
-            ctx.lineTo(0, 25);
-            ctx.closePath();
-            ctx.fill();
-
-            // Restore the canvas transformation
-            ctx.restore();
-
-            // Draw label with mission name and stage next to the rocket
-            ctx.fillStyle = '#fff'; // White color
-            ctx.font = '12px Inter'; // Adjust font size and family
-            ctx.fillText(`${telemetry.name} - stage ${telemetry.stage}`, x + 20, y + 20);
-
-            // Update legend values
-            document.getElementById('xValue').textContent = `${telemetry.x.toFixed(2)} km`;
-            document.getElementById('yValue').textContent = `${telemetry.y.toFixed(2)} km`;
-            document.getElementById('angleValue').textContent = `${telemetry.angle.toFixed(2)}°`;
-            document.getElementById('velocityValue').textContent = `${(telemetry.velocity * 3.6).toFixed(2)} km/h`;
-            document.getElementById('velocityXValue').textContent = `${(telemetry.velocity_x * 3.6).toFixed(2)} km/h`;
-            document.getElementById('velocityYValue').textContent = `${(telemetry.velocity_y * 3.6).toFixed(2)} km/h`;
-            document.getElementById('accelerationValue').textContent = `${telemetry.acceleration.toFixed(2)} m/s²`;
-            document.getElementById('altitudeValue').textContent = `${telemetry.altitude.toFixed(2)} km`;
-
-            // Check if the rocket is beyond the screen boundaries
-            if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) {
-                // Divide the scaling factor by 2
-                kmToPixels /= 2;
+                if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) {
+                    // Divide the scaling factor by 2
+                    kmToPixels /= 2;
+                }
             }
         }
 
         // Listen for telemetry updates from Flask-SocketIO
         socket.on('telemetry', (telemetry) => {
-            drawFalcon9(telemetry);
+            const key = telemetry.key;
+
+            if (!rockets[key]) {
+                rockets[key] = {
+                    history: new Set()
+                };
+            }
+
+            // Update the rocket telemetry data
+            rockets[key] = {
+                ...rockets[key],
+                ...telemetry
+            };
+
+            drawRockets();
         });
     </script>
 </body>

@@ -37,9 +37,10 @@ def simulate_telemetry():
 def run_socketio_app():
     socketio.run(app, host='0.0.0.0', port=5000) ## changing this port to 80 can cause issues running the app locally
 
-def send_telemetry(data: dict):
+def send_telemetry(data: dict, key, timestamp, headers):
 
     telemetry = {
+        'key': key.decode('utf-8'),
         'name': data["name"],
         'stage': data["stage"],
         'x': data["X"],
@@ -51,6 +52,8 @@ def send_telemetry(data: dict):
         'acceleration': data["acceleration"],
         'altitude': data["altitude"]
     }
+    
+    print(telemetry)
 
     socketio.emit('telemetry', telemetry)
 
@@ -67,7 +70,7 @@ if __name__ == '__main__':
 
     sdf = quix_app.dataframe(input_topic)
 
-    sdf = sdf.update(lambda row: print(row))
+    #sdf = sdf.update(lambda row: print(row))
 
-    sdf = sdf.update(send_telemetry)
+    sdf = sdf.update(send_telemetry, metadata=True)
     quix_app.run(sdf)

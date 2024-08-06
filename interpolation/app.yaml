@@ -1,13 +1,13 @@
-name: Position XY calculation
+name: Interpolation
 language: python
 variables:
   - name: input
     inputType: InputTopic
-    defaultValue: launch-telemetry-interpolated
+    defaultValue: launch-telemetry
     required: false
   - name: output
     inputType: OutputTopic
-    defaultValue: launch-telemetry-xy
+    defaultValue: launch-telemetry-interpolated
     required: false
 dockerfile: dockerfile
 runEntryPoint: main.py

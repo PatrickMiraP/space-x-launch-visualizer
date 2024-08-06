@@ -31,7 +31,7 @@ deployments:
       - name: input
         inputType: InputTopic
         required: false
-        value: launch-telemetry
+        value: launch-telemetry-interpolated
       - name: output
         inputType: OutputTopic
         required: false
@@ -57,8 +57,26 @@ deployments:
         inputType: InputTopic
         required: false
         value: launch-telemetry-xy
+  - name: Interpolation
+    application: interpolation
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        required: false
+        value: launch-telemetry
+      - name: output
+        inputType: OutputTopic
+        required: false
+        value: launch-telemetry-interpolated
 
 # This section describes the Topics of the data pipeline
 topics:
   - name: launch-telemetry
   - name: launch-telemetry-xy
+  - name: launch-telemetry-interpolated

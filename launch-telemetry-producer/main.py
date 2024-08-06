@@ -6,6 +6,8 @@ import requests
 import os
 import json
 import time
+import numpy as np
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
 # for local dev, load env vars from a .env file
@@ -60,6 +62,42 @@ def get_youtube_data(flight_number):
 
     return "", 0
 
+def interpolate_telemetry(telemetry_data, original_frequency=1, target_frequency=10):
+    """
+    Interpolates the telemetry data from the original frequency to the target frequency.
+    """
+    # Convert original timestamps to seconds
+    start_time = int(telemetry_data[0]['time'])
+    original_times = np.array([(int(entry['time']) - start_time) / 1e9 for entry in telemetry_data])
+
+    # Create target times for interpolation
+    target_times = np.arange(0, original_times[-1], 1 / target_frequency)
+
+    interpolated_data = []
+    numeric_fields = ['velocity', 'altitude', 'velocity_y', 'velocity_x', 'acceleration', 'downrange_distance', 'angle', 'q']
+
+    for field in numeric_fields:
+        if field in telemetry_data[0]:
+            original_values = np.array([float(entry[field]) for entry in telemetry_data])
+            interpolated_values = np.interp(target_times, original_times, original_values)
+
+            for i, time in enumerate(target_times):
+                if i < len(interpolated_data):
+                    interpolated_data[i][field] = interpolated_values[i]
+                else:
+                    interpolated_data.append({
+                        'time': int(start_time + time * 1e9),
+                        field: interpolated_values[i]
+                    })
+
+    # Add non-numeric fields to the interpolated data
+    for entry in interpolated_data:
+        for key, value in telemetry_data[0].items():
+            if key not in numeric_fields and key != 'time':
+                entry[key] = value
+
+    return interpolated_data
+
 def get_telemetry_data(mission):
     """
     A function to fetch telemetry data for a specific mission.
@@ -106,7 +144,8 @@ def get_telemetry_data(mission):
                 entry["youtube_id"] = youtube_id
                 entry["offset_youtube_seconds"] = offset_youtube_seconds
 
-            telemetry_data_list.append((mission_id, stage, telemetry_data))
+            interpolated_telemetry_data = interpolate_telemetry(telemetry_data)
+            telemetry_data_list.append((mission_id, stage, interpolated_telemetry_data))
 
         return telemetry_data_list
 

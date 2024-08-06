@@ -38,7 +38,7 @@ def simulate_telemetry():
     import random
 
 def run_socketio_app():
-    socketio.run(app, host='0.0.0.0', port=5000) ## changing this port to 80 can cause issues running the app locally
+    socketio.run(app, host='0.0.0.0', port=80) ## changing this port to 80 can cause issues running the app locally
 
 def send_telemetry(data: dict, key, timestamp, headers):
 

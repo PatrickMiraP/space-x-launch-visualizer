@@ -98,7 +98,7 @@ if __name__ == '__main__':
                 state_value["first_time"] = row["time"]        
 
             
-            if "last_time" not in last_value:
+            if "first_time" not in last_value:
                 continue
             
             step_delay = row["time"] - state_value["first_time"]

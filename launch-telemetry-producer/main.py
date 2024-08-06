@@ -217,7 +217,6 @@ def main():
                 future.result()  # ensure all publishing is done
     finally:
         producer.flush()  # Ensure all messages are sent before closing the producer
-        producer.close()
 
 if __name__ == "__main__":
     try:

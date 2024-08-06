@@ -95,7 +95,15 @@ if __name__ == '__main__':
 
             if "first_epoch" not in state_value:
                 state_value["first_epoch"] = time.time()
-                state_value["first_time"] = row["time"]        
+                state_value["first_time"] = row["time"]    
+                state_value["last_time"] = row["time"]    
+
+            if state_value["last_time"] > row["time"]:
+                print("Fuck, restarting")
+                state_value["first_epoch"] = time.time()
+                state_value["first_time"] = row["time"]  
+
+            state_value["last_time"] = row["time"]    
 
             
             if "first_time" not in last_value:

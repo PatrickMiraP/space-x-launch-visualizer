@@ -38,17 +38,20 @@ deployments:
         value: launch-telemetry-xy
   - name: Rocket visualization
     application: rocket-visualization
-    network:
-      serviceName: visualization
-      ports:
-      - port: 80
-        targetPort: 5000
     version: latest
     deploymentType: Service
     resources:
       cpu: 200
       memory: 800
       replicas: 1
+    publicAccess:
+      enabled: true
+      urlPrefix: rocketvisualization-6
+    network:
+      serviceName: visualization
+      ports:
+        - port: 80
+          targetPort: 5000
     variables:
       - name: input
         inputType: InputTopic

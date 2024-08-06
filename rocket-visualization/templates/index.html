@@ -50,6 +50,14 @@
     <div id="legend">
         <table>
             <tr>
+                <td>Mission:</td>
+                <td id="missionName"></td>
+            </tr>
+            <tr>
+                <td>Stage:</td>
+                <td id="stageNumber"></td>
+            </tr>
+            <tr>
                 <td>X:</td>
                 <td id="xValue"></td>
             </tr>
@@ -104,17 +112,22 @@
         const socket = io.connect(`${currentLocation.protocol}//${currentLocation.host}`);
 
         const rockets = {}; // Store telemetry data for each rocket
+        let selectedRocket = null; // Track the selected rocket
 
         // Function to draw the SpaceX Falcon 9 rocket and its trajectory
         function drawRockets() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            for (const key in rockets) {
+            const keys = Object.keys(rockets);
+            keys.forEach((key, index) => {
                 const telemetry = rockets[key];
                 const rocketHistory = telemetry.history;
 
+                // Apply an offset to separate rockets based on their index
+                const xOffset = (index - (keys.length - 1) / 2) * 50;
+                
                 // Convert Km to pixels using the current scaling factor
-                const x = centerX + (telemetry.x * kmToPixels);
+                const x = centerX + (telemetry.x * kmToPixels) + xOffset;
                 const y = canvas.height - (telemetry.y * kmToPixels);  // Invert the y-axis to match canvas coordinates
 
                 // Store current position in history if it's unique
@@ -127,7 +140,7 @@
 
                 for (const point of rocketHistory) {
                     const [px, py] = point.split(',').map(parseFloat);
-                    ctx.lineTo(centerX + (px * kmToPixels), canvas.height - (py * kmToPixels));
+                    ctx.lineTo(centerX + (px * kmToPixels) + xOffset, canvas.height - (py * kmToPixels));
                 }
 
                 ctx.stroke();
@@ -154,26 +167,28 @@
                 ctx.restore();
 
                 // Draw label with mission name and stage next to the rocket
-                ctx.fillStyle = '#fff'; // White color
-                ctx.font = '12px Inter'; // Adjust font size and family
+                ctx.fillStyle = (key === selectedRocket) ? 'lime' : '#fff'; // Lime if selected, otherwise white
+                ctx.font = key === selectedRocket ? 'bold 12px Inter' : '12px Inter'; // Bold if selected, otherwise normal
                 ctx.fillText(`${telemetry.name} - stage ${telemetry.stage}`, x + 20, y + 20);
-            }
+            });
 
-            // Update legend values (displaying only the latest telemetry data for simplicity)
-            const latestTelemetry = rockets[Object.keys(rockets).pop()];
-            if (latestTelemetry) {
-                document.getElementById('xValue').textContent = `${latestTelemetry.x.toFixed(2)} km`;
-                document.getElementById('yValue').textContent = `${latestTelemetry.y.toFixed(2)} km`;
-                document.getElementById('angleValue').textContent = `${latestTelemetry.angle.toFixed(2)}°`;
-                document.getElementById('velocityValue').textContent = `${(latestTelemetry.velocity * 3.6).toFixed(2)} km/h`;
-                document.getElementById('velocityXValue').textContent = `${(latestTelemetry.velocity_x * 3.6).toFixed(2)} km/h`;
-                document.getElementById('velocityYValue').textContent = `${(latestTelemetry.velocity_y * 3.6).toFixed(2)} km/h`;
-                document.getElementById('accelerationValue').textContent = `${latestTelemetry.acceleration.toFixed(2)} m/s²`;
-                document.getElementById('altitudeValue').textContent = `${latestTelemetry.altitude.toFixed(2)} km`;
+            // Update legend values based on the selected rocket
+            if (selectedRocket && rockets[selectedRocket]) {
+                const telemetry = rockets[selectedRocket];
+                document.getElementById('missionName').textContent = telemetry.name;
+                document.getElementById('stageNumber').textContent = telemetry.stage;
+                document.getElementById('xValue').textContent = `${telemetry.x.toFixed(2)} km`;
+                document.getElementById('yValue').textContent = `${telemetry.y.toFixed(2)} km`;
+                document.getElementById('angleValue').textContent = `${telemetry.angle.toFixed(2)}°`;
+                document.getElementById('velocityValue').textContent = `${(telemetry.velocity * 3.6).toFixed(2)} km/h`;
+                document.getElementById('velocityXValue').textContent = `${(telemetry.velocity_x * 3.6).toFixed(2)} km/h`;
+                document.getElementById('velocityYValue').textContent = `${(telemetry.velocity_y * 3.6).toFixed(2)} km/h`;
+                document.getElementById('accelerationValue').textContent = `${telemetry.acceleration.toFixed(2)} m/s²`;
+                document.getElementById('altitudeValue').textContent = `${telemetry.altitude.toFixed(2)} km`;
             }
 
             // Check if any rocket is beyond the screen boundaries
-            for (const key in rockets) {
+            keys.forEach(key => {
                 const telemetry = rockets[key];
                 const x = centerX + (telemetry.x * kmToPixels);
                 const y = canvas.height - (telemetry.y * kmToPixels);
@@ -182,7 +197,7 @@
                     // Divide the scaling factor by 2
                     kmToPixels /= 2;
                 }
-            }
+            });
         }
 
         // Listen for telemetry updates from Flask-SocketIO
@@ -193,6 +208,11 @@
                 rockets[key] = {
                     history: new Set()
                 };
+
+                // Select the first rocket if none is selected
+                if (!selectedRocket) {
+                    selectedRocket = key;
+                }
             }
 
             // Update the rocket telemetry data
@@ -202,6 +222,31 @@
             };
 
             drawRockets();
+        });
+
+        // Function to change the selected rocket
+        function changeSelectedRocket(direction) {
+            const keys = Object.keys(rockets);
+            const currentIndex = keys.indexOf(selectedRocket);
+            let newIndex = currentIndex + direction;
+
+            if (newIndex < 0) {
+                newIndex = keys.length - 1;
+            } else if (newIndex >= keys.length) {
+                newIndex = 0;
+            }
+
+            selectedRocket = keys[newIndex];
+            drawRockets();
+        }
+
+        // Add event listeners for cursor keys
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                changeSelectedRocket(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSelectedRocket(1);
+            }
         });
     </script>
 </body>

@@ -62,6 +62,11 @@ def get_telemetry_data(mission):
         telemetry_data = analysed_data[0]["telemetry"]
         stage = analysed_data[0]["stage"]
 
+        # Check if telemetry data has at least 1000 rows
+        if len(telemetry_data) < 1000:
+            print(f"Telemetry data for mission_id: {mission_id} has less than 1000 rows")
+            return None
+
         # add mission_id, name, flight_number, and stage to each telemetry entry
         for entry in telemetry_data:
             entry["mission_id"] = mission_id
@@ -117,7 +122,7 @@ def main():
     """
     missions = get_all_missions()
     
-    with ThreadPoolExecutor(max_workers=100) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for mission in missions:
             futures.append(executor.submit(get_telemetry_data, mission))
@@ -136,4 +141,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("Exiting.")
-

@@ -158,7 +158,7 @@ def get_telemetry_data(mission):
 
     return None
 
-def publish_telemetry(mission_id, stage, telemetry_data):
+def publish_telemetry(producer, mission_id, stage, telemetry_data):
     """
     A function to publish telemetry data to Kafka with delays between timestamps.
     """
@@ -166,28 +166,27 @@ def publish_telemetry(mission_id, stage, telemetry_data):
     start_loop = time.time()
     first_time = telemetry_data[0]['time']
 
-    with app.get_producer() as producer:
-        for i in range(len(telemetry_data)):
-            row_data = telemetry_data[i]
-            json_data = json.dumps(row_data)  # convert the row to JSON
+    for i in range(len(telemetry_data)):
+        row_data = telemetry_data[i]
+        json_data = json.dumps(row_data)  # convert the row to JSON
 
-            # publish the data to the topic
-            producer.produce(
-                topic=topic.name,
-                key=key,  # using mission_id and stage as the key
-                value=json_data,
-            )
+        # publish the data to the topic
+        producer.produce(
+            topic=topic.name,
+            key=key,  # using mission_id and stage as the key
+            value=json_data,
+        )
 
-            print(f"Published row {i+1}/{len(telemetry_data)}: {json_data}")
+        print(f"Published row {i+1}/{len(telemetry_data)}: {json_data}")
 
-            if i < len(telemetry_data) - 1:
-                next_time = telemetry_data[i + 1]['time']
-                time_diff = next_time - first_time
+        if i < len(telemetry_data) - 1:
+            next_time = telemetry_data[i + 1]['time']
+            time_diff = next_time - first_time
 
-                time_to_wait = max(0.0, time_diff - (time.time() - start_loop))
-                time.sleep(time_to_wait)
+            time_to_wait = max(0.0, time_diff - (time.time() - start_loop))
+            time.sleep(time_to_wait)
 
-        print(f"All rows for mission {mission_id} stage {stage} published")
+    print(f"All rows for mission {mission_id} stage {stage} published")
 
 def main():
     """
@@ -199,20 +198,26 @@ def main():
     offset = replica_id * num_missions
     limited_missions = missions[offset:offset + num_missions]
 
-    with ThreadPoolExecutor(max_workers=num_missions) as executor:
-        futures = []
-        for mission in limited_missions:
-            futures.append(executor.submit(get_telemetry_data, mission))
+    producer = app.get_producer()  # Create a single producer instance
 
-        telemetry_data_results = [future.result() for future in futures if future.result() is not None]
-        
-        publish_futures = []
-        for telemetry_data_list in telemetry_data_results:
-            for mission_id, stage, telemetry_data in telemetry_data_list:
-                publish_futures.append(executor.submit(publish_telemetry, mission_id, stage, telemetry_data))
+    try:
+        with ThreadPoolExecutor(max_workers=num_missions) as executor:
+            futures = []
+            for mission in limited_missions:
+                futures.append(executor.submit(get_telemetry_data, mission))
 
-        for future in publish_futures:
-            future.result()  # ensure all publishing is done
+            telemetry_data_results = [future.result() for future in futures if future.result() is not None]
+            
+            publish_futures = []
+            for telemetry_data_list in telemetry_data_results:
+                for mission_id, stage, telemetry_data in telemetry_data_list:
+                    publish_futures.append(executor.submit(publish_telemetry, producer, mission_id, stage, telemetry_data))
+
+            for future in publish_futures:
+                future.result()  # ensure all publishing is done
+    finally:
+        producer.flush()  # Ensure all messages are sent before closing the producer
+        producer.close()
 
 if __name__ == "__main__":
     try:

@@ -9,7 +9,7 @@ deployments:
   - name: Launch Telemetry Producer
     application: launch-telemetry-producer
     version: latest
-    deploymentType: Job
+    deploymentType: Service
     resources:
       cpu: 200
       memory: 800

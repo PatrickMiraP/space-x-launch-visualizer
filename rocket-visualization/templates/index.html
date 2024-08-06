@@ -119,6 +119,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const keys = Object.keys(rockets);
+            let boundaryExceeded = false;
+
             keys.forEach((key, index) => {
                 const telemetry = rockets[key];
                 const rocketHistory = telemetry.history;
@@ -170,7 +172,17 @@
                 ctx.fillStyle = (key === selectedRocket) ? 'lime' : '#fff'; // Lime if selected, otherwise white
                 ctx.font = key === selectedRocket ? 'bold 12px Inter' : '12px Inter'; // Bold if selected, otherwise normal
                 ctx.fillText(`${telemetry.name} - stage ${telemetry.stage}`, x + 20, y + 20);
+
+                // Check if any rocket is beyond the screen boundaries
+                if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) {
+                    boundaryExceeded = true;
+                }
             });
+
+            // If any rocket is beyond the screen boundaries, reset the scaling factor
+            if (boundaryExceeded) {
+                kmToPixels /= 2;
+            }
 
             // Update legend values based on the selected rocket
             if (selectedRocket && rockets[selectedRocket]) {
@@ -186,18 +198,6 @@
                 document.getElementById('accelerationValue').textContent = `${telemetry.acceleration.toFixed(2)} m/s²`;
                 document.getElementById('altitudeValue').textContent = `${telemetry.altitude.toFixed(2)} km`;
             }
-
-            // Check if any rocket is beyond the screen boundaries
-            keys.forEach(key => {
-                const telemetry = rockets[key];
-                const x = centerX + (telemetry.x * kmToPixels);
-                const y = canvas.height - (telemetry.y * kmToPixels);
-
-                if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) {
-                    // Divide the scaling factor by 2
-                    kmToPixels /= 2;
-                }
-            });
         }
 
         // Listen for telemetry updates from Flask-SocketIO

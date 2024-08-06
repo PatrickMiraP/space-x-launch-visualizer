@@ -14,11 +14,15 @@ load_dotenv()
 
 app = Application(consumer_group="data_source", auto_create_topics=True)  # create an Application
 
-# define the topic using the "output" environment variable
+# Load environment variables
 topic_name = os.environ["output"]
+num_missions = int(os.environ.get("num_missions", 20))  # Default to 20 if not set
+replica_id = int(os.environ.get("Quix__Deployment__ReplicaName", 0))  # Default to 0 if not set
+
+# Define the topic using the "output" environment variable
 topic = app.topic(topic_name)
 
-# define the endpoint URL to get all missions
+# Define the endpoint URL to get all missions
 missions_url = "http://api.launchdashboard.space/v2/launches/spacex"
 
 def get_all_missions():
@@ -61,11 +65,6 @@ def get_telemetry_data(mission):
 
         telemetry_data = analysed_data[0]["telemetry"]
         stage = analysed_data[0]["stage"]
-
-        # Check if telemetry data has at least 1000 rows
-        if len(telemetry_data) < 1000:
-            print(f"Telemetry data for mission_id: {mission_id} has less than 1000 rows")
-            return None
 
         # add mission_id, name, flight_number, and stage to each telemetry entry
         for entry in telemetry_data:
@@ -122,9 +121,13 @@ def main():
     """
     missions = get_all_missions()
     
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    # Determine offset and limit for missions based on replica_id and num_missions
+    offset = replica_id * num_missions
+    limited_missions = missions[offset:offset + num_missions]
+
+    with ThreadPoolExecutor(max_workers=num_missions) as executor:
         futures = []
-        for mission in missions:
+        for mission in limited_missions:
             futures.append(executor.submit(get_telemetry_data, mission))
 
         telemetry_data_results = [future.result() for future in futures if future.result() is not None]
@@ -141,3 +144,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("Exiting.")
+

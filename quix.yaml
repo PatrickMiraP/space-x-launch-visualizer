@@ -39,7 +39,7 @@ deployments:
   - name: Rocket visualization
     application: rocket-visualization
     network:
-      serviceName: Visualization
+      serviceName: visualization
       ports:
       - port: 80
         targetPort: 5000

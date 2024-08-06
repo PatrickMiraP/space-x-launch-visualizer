@@ -40,6 +40,8 @@ def run_socketio_app():
 def send_telemetry(data: dict):
 
     telemetry = {
+        'name': data["name"],
+        'stage': data["stage"],
         'x': data["X"],
         'y': data["Y"],
         'angle': data["angle"] * -1,

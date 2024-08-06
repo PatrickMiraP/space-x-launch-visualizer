@@ -18,22 +18,35 @@ topic_name = os.environ["output"]
 topic = app.topic(topic_name)
 
 # define the endpoint URL
-url = "http://api.launchdashboard.space/v2/launches/spacex?mission_id=starlink-18"
+url = "http://api.launchdashboard.space/v2/launches/spacex?mission_id=spacex crs-16"
 
 def get_data():
     """
     A function to fetch data from the specified endpoint and extract the telemetry data.
-    It returns a list of telemetry data.
+    It returns the mission_id, stage, and a list of updated telemetry data.
     """
 
     # make a GET request to the endpoint
     response = requests.get(url)
     data = response.json()
 
+    # extract the mission_id, name, and flight_number
+    mission_id = data["mission_id"]
+    name = data["name"]
+    flight_number = data["flight_number"]
+
     # extract the telemetry data from the "analysed" section
     telemetry_data = data["analysed"][0]["telemetry"]
+    stage = data["analysed"][0]["stage"]
 
-    return telemetry_data
+    # add mission_id, name, flight_number, and stage to each telemetry entry
+    for entry in telemetry_data:
+        entry["mission_id"] = mission_id
+        entry["name"] = name
+        entry["flight_number"] = flight_number
+        entry["stage"] = stage
+
+    return mission_id, stage, telemetry_data
 
 def main():
     """
@@ -43,7 +56,8 @@ def main():
     # create a pre-configured Producer object.
     with app.get_producer() as producer:
         # fetch the telemetry data from the endpoint
-        telemetry_data = get_data()
+        mission_id, stage, telemetry_data = get_data()
+        key = f"{mission_id}-stage-{stage}"
         start_loop = time.time()
         first_time = telemetry_data[0]['time']
 
@@ -54,7 +68,7 @@ def main():
             # publish the data to the topic
             producer.produce(
                 topic=topic.name,
-                key="telemetry",  # using "telemetry" as the key
+                key=key,  # using mission_id and stage as the key
                 value=json_data,
             )
 

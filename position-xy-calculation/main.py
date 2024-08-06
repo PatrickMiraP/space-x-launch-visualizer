@@ -57,7 +57,7 @@ def calculate_XY(row: dict, state: State):
 # apply the result of the count_names function to the row
 sdf = sdf.apply(calculate_XY, stateful=True)
 
-sdf = sdf[["time", "velocity", "velocity_x", "velocity_y", "acceleration", "altitude", "angle", "X", "Y"]]
+# sdf = sdf[["time", "velocity", "velocity_x", "velocity_y", "acceleration", "altitude", "angle", "X", "Y"]]
 
 # print the row with this inline function
 sdf = sdf.update(lambda row: print(row))

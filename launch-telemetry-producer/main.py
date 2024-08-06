@@ -16,7 +16,7 @@ app = Application(consumer_group="data_source", auto_create_topics=True)  # crea
 
 # Load environment variables
 topic_name = os.environ["output"]
-num_missions = int(os.environ.get("num_missions", 20))  # Default to 20 if not set
+num_missions = int(os.environ.get("num_missions", 10))  # Default to 10 if not set
 replica_id = int(os.environ.get("Quix__Deployment__ReplicaName", 0))  # Default to 0 if not set
 
 # Define the topic using the "output" environment variable
@@ -37,7 +37,7 @@ def get_all_missions():
 def get_telemetry_data(mission):
     """
     A function to fetch telemetry data for a specific mission.
-    It returns the mission details and a list of updated telemetry data.
+    It returns a list of tuples containing mission_id, stage, and telemetry data for each stage.
     """
     mission_id = mission["mission_id"]
     telemetry_url = f"http://api.launchdashboard.space/v2/launches/spacex?mission_id={mission_id}"
@@ -52,28 +52,31 @@ def get_telemetry_data(mission):
             print(f"Missing required data for mission_id: {mission_id}")
             return None
 
-        # extract the mission_id, name, flight_number, and stage
+        # extract the mission_id, name, and flight_number
         mission_id = data["mission_id"]
         name = data["name"]
         flight_number = data["flight_number"]
 
-        # extract the telemetry data from the "analysed" section
-        analysed_data = data["analysed"]
-        if not analysed_data or "telemetry" not in analysed_data[0] or "stage" not in analysed_data[0]:
-            print(f"Missing telemetry data for mission_id: {mission_id}")
-            return None
+        telemetry_data_list = []
+        for analysed_data in data["analysed"]:
+            # extract the telemetry data for each stage
+            if "telemetry" not in analysed_data or "stage" not in analysed_data:
+                print(f"Missing telemetry data for mission_id: {mission_id}")
+                continue
 
-        telemetry_data = analysed_data[0]["telemetry"]
-        stage = analysed_data[0]["stage"]
+            telemetry_data = analysed_data["telemetry"]
+            stage = analysed_data["stage"]
 
-        # add mission_id, name, flight_number, and stage to each telemetry entry
-        for entry in telemetry_data:
-            entry["mission_id"] = mission_id
-            entry["name"] = name
-            entry["flight_number"] = flight_number
-            entry["stage"] = stage
+            # add mission_id, name, flight_number, and stage to each telemetry entry
+            for entry in telemetry_data:
+                entry["mission_id"] = mission_id
+                entry["name"] = name
+                entry["flight_number"] = flight_number
+                entry["stage"] = stage
 
-        return mission_id, stage, telemetry_data
+            telemetry_data_list.append((mission_id, stage, telemetry_data))
+
+        return telemetry_data_list
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred for mission_id: {mission_id} - {http_err}")
@@ -133,8 +136,9 @@ def main():
         telemetry_data_results = [future.result() for future in futures if future.result() is not None]
         
         publish_futures = []
-        for mission_id, stage, telemetry_data in telemetry_data_results:
-            publish_futures.append(executor.submit(publish_telemetry, mission_id, stage, telemetry_data))
+        for telemetry_data_list in telemetry_data_results:
+            for mission_id, stage, telemetry_data in telemetry_data_list:
+                publish_futures.append(executor.submit(publish_telemetry, mission_id, stage, telemetry_data))
 
         for future in publish_futures:
             future.result()  # ensure all publishing is done
@@ -144,4 +148,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("Exiting.")
-

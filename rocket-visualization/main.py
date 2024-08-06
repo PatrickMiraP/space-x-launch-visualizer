@@ -5,6 +5,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 import time
 from quixstreams import Application, State
+import uuid
 
 # import the dotenv module to load environment variables from a file
 from dotenv import load_dotenv
@@ -72,7 +73,7 @@ if __name__ == '__main__':
 
     load_dotenv(override=False)
 
-    quix_app = Application()
+    quix_app = Application(consumer_group=str(uuid.uuid4()), auto_offset_reset="latest")
 
     input_topic = quix_app.topic(os.environ["input"])
 

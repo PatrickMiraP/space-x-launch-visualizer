@@ -80,3 +80,4 @@ topics:
   - name: launch-telemetry
   - name: launch-telemetry-xy
   - name: launch-telemetry-interpolated
+  - name: PolygonSource

@@ -81,3 +81,4 @@ topics:
   - name: launch-telemetry-xy
   - name: launch-telemetry-interpolated
   - name: PolygonSource
+  - name: aggregates-1s

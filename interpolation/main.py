@@ -12,7 +12,7 @@ output_topic = app.topic(os.environ["output"])
 
 sdf = app.dataframe(input_topic)
 sdf.print()
-fgfg
+
 def last_value(row: dict, state: State):
     state_value = state.get("last_value", None)
     

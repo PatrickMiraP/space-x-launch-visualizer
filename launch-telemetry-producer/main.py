@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Application(consumer_group="data_source", auto_create_topics=True)  # create an Application
-
+ 
 # Load environment variables
 topic_name = os.environ["output"]
 num_missions = int(os.environ.get("num_missions", 10))  # Default to 10 if not set

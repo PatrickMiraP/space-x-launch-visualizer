@@ -95,6 +95,14 @@ deployments:
         inputType: Secret
         description: 's'
         required: false
+      - name: test2
+        inputType: Secret
+        description: 's'
+        required: false
+      - name: freeText
+        inputType: FreeText
+        description: 's'
+        required: false
 
 # This section describes the Topics of the data pipeline
 topics:

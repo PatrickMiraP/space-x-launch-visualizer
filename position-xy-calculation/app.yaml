@@ -13,7 +13,7 @@ variables:
     inputType: Secret
     description: ''
     defaultValue: ''
-    required: true
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py

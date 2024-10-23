@@ -12,7 +12,6 @@ variables:
   - name: test
     inputType: Secret
     description: ''
-    defaultValue: ''
     required: false
 dockerfile: dockerfile
 runEntryPoint: main.py

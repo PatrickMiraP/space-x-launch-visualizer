@@ -9,6 +9,11 @@ variables:
     inputType: OutputTopic
     defaultValue: launch-telemetry-xy
     required: false
+  - name: test
+    inputType: Secret
+    description: ''
+    defaultValue: ''
+    required: false
 dockerfile: dockerfile
 runEntryPoint: main.py
 defaultFile: main.py

@@ -74,6 +74,27 @@ deployments:
         inputType: OutputTopic
         required: false
         value: launch-telemetry-interpolated
+  - name: Position XY calculation 2
+    application: position-xy-calculation
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: input
+        inputType: InputTopic
+        required: false
+        value: launch-telemetry-interpolated
+      - name: output
+        inputType: OutputTopic
+        required: false
+        value: launch-telemetry-xy
+      - name: test
+        inputType: Secret
+        description: ''
+        required: false
 
 # This section describes the Topics of the data pipeline
 topics:

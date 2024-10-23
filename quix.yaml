@@ -95,15 +95,51 @@ deployments:
         inputType: Secret
         description: 's'
         required: false
-      - name: test2
-        inputType: Secret
-        description: 's'
-        required: false
-      - name: freeText
+      - name: SENTRY_ENVIRONMENT
         inputType: FreeText
-        description: 's'
+        description: Sentry environment for deployed Quix
         required: false
-
+      - name: SENTRY_DSN
+        inputType: FreeText
+        description: Sentry DSN
+        required: false
+      - name: REPORT_NOTIFICATION_URL
+        inputType: FreeText
+        description: URL to notify activity/sleep/other reports to
+        required: false
+      - name: QUIX_COMMUNICATION_KEY
+        inputType: Secret
+        description: ''
+        required: false
+      - name: INFLUXDB_URL
+        inputType: Secret
+        description: InfluxDB URL
+        required: false
+        secretKey: INFLUXDB_URL
+      - name: LOG_RSYSLOG_ADDR
+        inputType: FreeText
+        description: Host:Port for RSyslog server
+        required: false
+      - name: INPUT_TOPIC
+        inputType: InputTopic
+        description: ''
+        required: false
+        value: sleepdeviation_inputs
+      - name: OUTPUT_TOPIC
+        inputType: OutputTopic
+        description: ''
+        required: false
+        value: startingreadiness_inputs
+      - name: OUTPUT_TOPIC_2
+        inputType: OutputTopic
+        description: ''
+        required: false
+        value: ''
+      - name: OUTPUT_TOPIC_3
+        inputType: OutputTopic
+        description: ''
+        required: false
+        value: '' 
 # This section describes the Topics of the data pipeline
 topics:
   - name: launch-telemetry

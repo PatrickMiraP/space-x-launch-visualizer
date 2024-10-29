@@ -1,4 +1,4 @@
-quixstreams==2.8.1
+quixstreams
 python-dotenv
 Flask==2.0.1
 Flask-SocketIO==5.1.0

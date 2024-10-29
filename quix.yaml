@@ -93,7 +93,7 @@ deployments:
         value: launch-telemetry-xy
       - name: test
         inputType: Secret
-        description: 's'
+        description: s
         required: false
       - name: SENTRY_ENVIRONMENT
         inputType: FreeText
@@ -120,6 +120,7 @@ deployments:
         inputType: FreeText
         description: Host:Port for RSyslog server
         required: false
+
 # This section describes the Topics of the data pipeline
 topics:
   - name: launch-telemetry
@@ -127,3 +128,4 @@ topics:
   - name: launch-telemetry-interpolated
   - name: PolygonSource
   - name: aggregates-1s
+  - name: quix-spacexlaunchvisualizer-dev-launch-telemetry-xy

@@ -2,7 +2,7 @@ import os
 
 from quixstreams import Application, State
 
-# import the dotenv module to load environment variables from a file 
+# import the dotenv module to load environment variables from a file
 from dotenv import load_dotenv
 load_dotenv(override=False)
 

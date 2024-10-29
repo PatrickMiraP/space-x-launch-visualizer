@@ -120,26 +120,6 @@ deployments:
         inputType: FreeText
         description: Host:Port for RSyslog server
         required: false
-      - name: INPUT_TOPIC
-        inputType: InputTopic
-        description: ''
-        required: false
-        value: sleepdeviation_inputs
-      - name: OUTPUT_TOPIC
-        inputType: OutputTopic
-        description: ''
-        required: false
-        value: startingreadiness_inputs
-      - name: OUTPUT_TOPIC_2
-        inputType: OutputTopic
-        description: ''
-        required: false
-        value: ''
-      - name: OUTPUT_TOPIC_3
-        inputType: OutputTopic
-        description: ''
-        required: false
-        value: '' 
 # This section describes the Topics of the data pipeline
 topics:
   - name: launch-telemetry

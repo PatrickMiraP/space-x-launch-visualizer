@@ -127,5 +127,6 @@ topics:
     dataTier: Bronze
   - name: launch-telemetry-xy
   - name: launch-telemetry-interpolated
+    dataTier: Silver
   - name: PolygonSource
   - name: aggregates-1s

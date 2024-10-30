@@ -130,4 +130,3 @@ topics:
   - name: launch-telemetry-interpolated
     dataTier: Silver
   - name: PolygonSource
-  - name: aggregates-1s

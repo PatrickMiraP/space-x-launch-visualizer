@@ -143,3 +143,4 @@ topics:
   - name: launch-telemetry-interpolated
     dataTier: Silver
   - name: PolygonSource
+  - name: quix-spacexlaunchvisualizer-dev-launch-telemetry-xy

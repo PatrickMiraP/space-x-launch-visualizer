@@ -144,3 +144,4 @@ topics:
     dataTier: Silver
   - name: PolygonSource
   - name: quix-spacexlaunchvisualizer-dev-launch-telemetry-xy
+    dataTier: {{ dataTier }}

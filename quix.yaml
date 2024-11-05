@@ -120,6 +120,19 @@ deployments:
         inputType: FreeText
         description: Host:Port for RSyslog server
         required: false
+  - name: Launch Telemetry Producer 2
+    application: launch-telemetry-producer
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: output
+        inputType: OutputTopic
+        required: false
+        value: launch-telemetry-xy
 
 # This section describes the Topics of the data pipeline
 topics:

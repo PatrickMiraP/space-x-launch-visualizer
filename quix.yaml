@@ -21,7 +21,7 @@ deployments:
         value: launch-telemetry
   - name: Position XY calculation
     application: position-xy-calculation
-    version: test
+    version: latest
     deploymentType: Service
     resources:
       cpu: 1000

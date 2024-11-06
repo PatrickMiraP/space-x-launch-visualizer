@@ -21,7 +21,7 @@ deployments:
         value: launch-telemetry
   - name: Position XY calculation
     application: position-xy-calculation
-    version: latest
+    version: test
     deploymentType: Service
     resources:
       cpu: 1000
@@ -36,6 +36,10 @@ deployments:
         inputType: OutputTopic
         required: false
         value: launch-telemetry-xy
+      - name: test
+        inputType: Secret
+        description: ''
+        required: false
   - name: Rocket visualization
     application: rocket-visualization
     version: latest

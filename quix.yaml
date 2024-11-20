@@ -8,7 +8,7 @@ metadata:
 deployments:
   - name: Launch Telemetry Producer
     application: launch-telemetry-producer
-    version: {{ version }}
+    version: latest
     deploymentType: Service
     resources:
       cpu: 200
@@ -21,7 +21,7 @@ deployments:
         value: launch-telemetry
   - name: Position XY calculation
     application: position-xy-calculation
-    version: {{ version }}
+    version: latest
     deploymentType: Service
     resources:
       cpu: 1000
@@ -42,7 +42,7 @@ deployments:
         required: false
   - name: Rocket visualization
     application: rocket-visualization
-    version: {{ version }}
+    version: latest
     deploymentType: Service
     resources:
       cpu: 1000

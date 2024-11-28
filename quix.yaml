@@ -124,22 +124,6 @@ deployments:
         inputType: FreeText
         description: Host:Port for RSyslog server
         required: false
-  - name: Interpolation 2
-    image: tensorflow/tensorflow:2.2.2
-    deploymentType: Service
-    resources:
-      cpu: 200
-      memory: 500
-      replicas: 1
-    variables:
-      - name: input
-        inputType: InputTopic
-        required: false
-        value: launch-telemetry
-      - name: output
-        inputType: OutputTopic
-        required: false
-        value: launch-telemetry-interpolated
 
 # This section describes the Topics of the data pipeline
 topics:

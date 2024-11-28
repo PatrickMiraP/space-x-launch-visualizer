@@ -125,7 +125,7 @@ deployments:
         description: Host:Port for RSyslog server
         required: false
   - name: Interpolation 2
-    image: tensorflow/tensorflow
+    image: tensorflow/tensorflow:2.2.2
     deploymentType: Service
     resources:
       cpu: 200

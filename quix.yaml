@@ -134,3 +134,5 @@ topics:
   - name: launch-telemetry-interpolated
     dataTier: Silver
   - name: PolygonSource
+    configuration:
+      retentionInBytes: 160432128
